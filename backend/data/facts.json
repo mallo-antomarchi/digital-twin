@@ -1,0 +1,36 @@
+{
+    "full_name": "Mallory Antomarchi",
+    "name": "Mallo Antomarchi",
+    "current_role": "AI/ML Engineer",
+    "location": "Nice, France",
+    "email": "mallofrench05@gmail.com",
+    "linkedin": "https://www.linkedin.com/in/mantomarchi/",
+    "specialties": [
+      "AI Engineering",
+      "AI Agents",
+      "AI Consulting"
+    ],
+    "years_experience": 2,
+    "education": [
+      {
+        "degree": "Generative AI Engineering Professional Certificate",
+        "institution": "IBM",
+        "year": "2025"
+      },
+      {
+        "degree": "Data Science Professional Certificate",
+        "institution": "IBM",
+        "year": "2025"
+      },
+      {
+        "degree": "Data Analytics Professional Certificate",
+        "institution": "Google",
+        "year": "2025"
+      },
+      {
+        "degree": "AI Agents Developer Specialization",
+        "institution": "Vanderbilt University",
+        "year": "2025"
+      }
+    ]
+  }
