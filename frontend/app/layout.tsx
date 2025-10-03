@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mallo Digital Twin",
-  description: "Mallory's Official Interactive CV",
+  title: "Mallo Antomarchi's Digital Twin",
+  description: "Mallo's Official Interactive CV",
 };
 
 export default function RootLayout({
