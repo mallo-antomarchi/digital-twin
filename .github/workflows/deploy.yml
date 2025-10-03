@@ -3,12 +3,15 @@ name: Deploy Digital Twin
 on:
   push:
     branches: [main]
+    tags:
+      - 'test-v*'   # Push tag like 'test-v1.0.0' to deploy to test
+      - 'prod-v*'   # Push tag like 'prod-v1.0.0' to deploy to prod
   workflow_dispatch:
     inputs:
       environment:
         description: 'Environment to deploy'
         required: true
-        default: 'prod'
+        default: 'dev'
         type: choice
         options:
           - dev
@@ -21,11 +24,24 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy to ${{ github.event.inputs.environment || 'dev' }}
+    name: Deploy to ${{ github.event.inputs.environment || (startsWith(github.ref, 'refs/tags/prod-') && 'prod') || (startsWith(github.ref, 'refs/tags/test-') && 'test') || 'dev' }}
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment || 'dev' }}
+    environment: ${{ github.event.inputs.environment || (startsWith(github.ref, 'refs/tags/prod-') && 'prod') || (startsWith(github.ref, 'refs/tags/test-') && 'test') || 'dev' }}
     
     steps:
+      - name: Determine environment
+        id: env
+        run: |
+          if [ -n "${{ github.event.inputs.environment }}" ]; then
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == refs/tags/prod-* ]]; then
+            echo "environment=prod" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == refs/tags/test-* ]]; then
+            echo "environment=test" >> $GITHUB_OUTPUT
+          else
+            echo "environment=dev" >> $GITHUB_OUTPUT
+          fi
+      
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -66,7 +82,7 @@ jobs:
           
           # Make script executable and run it
           chmod +x scripts/deploy.sh
-          ./scripts/deploy.sh ${{ github.event.inputs.environment || 'dev' }}
+          ./scripts/deploy.sh ${{ steps.env.outputs.environment }}
         env:
           AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
           
@@ -74,7 +90,7 @@ jobs:
         id: deploy_outputs
         working-directory: ./terraform
         run: |
-          terraform workspace select ${{ github.event.inputs.environment || 'dev' }}
+          terraform workspace select ${{ steps.env.outputs.environment }}
           echo "cloudfront_url=$(terraform output -raw cloudfront_url)" >> $GITHUB_OUTPUT
           echo "api_url=$(terraform output -raw api_gateway_url)" >> $GITHUB_OUTPUT
           echo "frontend_bucket=$(terraform output -raw s3_frontend_bucket)" >> $GITHUB_OUTPUT
